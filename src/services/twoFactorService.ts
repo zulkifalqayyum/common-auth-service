@@ -4,7 +4,11 @@ export function generateTotpSecret(): string {
   return authenticator.generateSecret();
 }
 
-export function generateTotpUri(email: string, secret: string, issuer = "Nordjay"): string {
+export function generateTotpUri(
+  email: string,
+  secret: string,
+  issuer = "Node-Express",
+): string {
   return authenticator.keyuri(email, issuer, secret);
 }
 

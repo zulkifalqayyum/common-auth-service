@@ -50,7 +50,12 @@ redisClient.on("end", () => {
 
 export async function connectRedis(): Promise<void> {
   const status = redisClient.status;
-  if (status === "ready" || status === "connect" || status === "connecting" || status === "reconnecting") {
+  if (
+    status === "ready" ||
+    status === "connect" ||
+    status === "connecting" ||
+    status === "reconnecting"
+  ) {
     return;
   }
 
@@ -59,7 +64,13 @@ export async function connectRedis(): Promise<void> {
 
 export async function disconnectRedis(): Promise<void> {
   const status = redisClient.status;
-  if (status === "ready" || status === "connect" || status === "connecting" || status === "reconnecting" || status === "wait") {
+  if (
+    status === "ready" ||
+    status === "connect" ||
+    status === "connecting" ||
+    status === "reconnecting" ||
+    status === "wait"
+  ) {
     await redisClient.quit();
   }
 }

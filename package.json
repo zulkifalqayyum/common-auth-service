@@ -1,7 +1,7 @@
 {
-  "name": "nordjay-backend",
+  "name": "NodeExpress-Auth-Backend",
   "version": "1.0.0",
-  "description": "Nordjay production-grade multi-tenant authentication and authorization backend",
+  "description": "NodeExpress Auth production-grade multi-tenant authentication and authorization backend",
   "main": "dist/server.js",
   "type": "commonjs",
   "packageManager": "pnpm@9.0.0",
@@ -24,10 +24,10 @@
     "drizzle-orm": "^0.36.4",
     "express": "^4.21.2",
     "helmet": "^8.0.0",
+    "ioredis": "^6.0.0",
     "jose": "^5.9.6",
     "otplib": "^12.0.1",
     "pg": "^8.13.1",
-    "redis": "^4.7.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
