@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify, errors as joseErrors } from "jose";
+import { jwtVerify, errors as joseErrors } from "jose";
 import { env } from "../config/env";
 import type { AccessTokenClaims, RefreshTokenClaims } from "../types/auth";
 
@@ -18,40 +18,15 @@ export class TokenInvalidError extends Error {
   }
 }
 
-async function signClaims(
-  claims: Record<string, unknown>,
-  ttlSeconds: number,
-): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  return new SignJWT(claims)
-    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-    .setIssuedAt(now)
-    .setExpirationTime(now + ttlSeconds)
-    .setIssuer(env.JWT_ISSUER)
-    .setAudience(env.JWT_AUDIENCE)
-    .sign(secretKey);
-}
-
-export async function signAccessToken(
-  claims: Omit<AccessTokenClaims, "type">,
-  ttlSeconds: number = env.ACCESS_TOKEN_TTL_SECONDS,
-): Promise<string> {
-  return signClaims({ ...claims, type: "access" }, ttlSeconds);
-}
-
-export async function signRefreshToken(
-  claims: Omit<RefreshTokenClaims, "type">,
-  ttlSeconds: number = env.REFRESH_TOKEN_TTL_SECONDS,
-): Promise<string> {
-  return signClaims({ ...claims, type: "refresh" }, ttlSeconds);
-}
-
+/**
+ * Tokens are minted exclusively by the Django backend
+ * (djangorestframework-simplejwt, HS256, signed with the same JWT_SECRET
+ * value as its SECRET_KEY). This service only verifies. Django doesn't set
+ * iss/aud claims, so they are not checked here.
+ */
 async function verifyClaims<T>(token: string): Promise<T> {
   try {
-    const { payload } = await jwtVerify(token, secretKey, {
-      issuer: env.JWT_ISSUER,
-      audience: env.JWT_AUDIENCE,
-    });
+    const { payload } = await jwtVerify(token, secretKey);
     return payload as unknown as T;
   } catch (err) {
     if (err instanceof joseErrors.JWTExpired) {
@@ -65,7 +40,7 @@ export async function verifyAccessToken(
   token: string,
 ): Promise<AccessTokenClaims> {
   const payload = await verifyClaims<AccessTokenClaims>(token);
-  if (payload.type !== "access") {
+  if (payload.token_type !== "access") {
     throw new TokenInvalidError("Not an access token");
   }
   return payload;
@@ -75,7 +50,7 @@ export async function verifyRefreshToken(
   token: string,
 ): Promise<RefreshTokenClaims> {
   const payload = await verifyClaims<RefreshTokenClaims>(token);
-  if (payload.type !== "refresh") {
+  if (payload.token_type !== "refresh") {
     throw new TokenInvalidError("Not a refresh token");
   }
   return payload;

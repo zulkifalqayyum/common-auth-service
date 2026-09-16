@@ -25,7 +25,7 @@ export async function authenticate(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const cookieToken = req.cookies?.[env.SESSION_COOKIE_NAME];
+    const cookieToken = req.cookies?.[env.JWT_AUTH_COOKIE];
     const bearerToken = extractBearerToken(req);
     const accessToken = cookieToken ?? bearerToken;
 
@@ -34,8 +34,7 @@ export async function authenticate(
     }
 
     const claims = await verifyAccessTokenAndCheckRevocation(accessToken);
-    const userId = Number(claims.sub);
-    const user = Number.isFinite(userId) ? await getUserById(userId) : null;
+    const user = await getUserById(claims.user_id);
 
     if (!user) {
       res.status(401).json({ error: "User not found" });

@@ -29,13 +29,12 @@ const envSchema = z.object({
     .default("true")
     .transform((v) => v === "true"),
 
+  // Must hold the same value as the Django backend's SECRET_KEY —
+  // djangorestframework-simplejwt signs with SECRET_KEY directly, there is
+  // no separate JWT_SECRET on the Django side.
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
-  JWT_ISSUER: z.string().default("nodeexpress-auth"),
-  JWT_AUDIENCE: z.string().default("nodeexpress-auth-clients"),
-  ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(28800),
-  REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(43200),
 
-  SESSION_COOKIE_NAME: z.string().default("session"),
+  JWT_AUTH_COOKIE: z.string().default("session"),
 
   CORS_ALLOWED_ORIGINS: z.string().default(""),
 

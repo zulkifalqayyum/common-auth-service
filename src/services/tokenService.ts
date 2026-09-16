@@ -2,14 +2,17 @@ import { redisClient, withRedisFallback } from "../config/redis";
 import { verifyAccessToken } from "../utils/jwt";
 import type { AccessTokenClaims } from "../types/auth";
 
-const jtiKey = (jti: string) => `jti:${jti}`;
+// Matches Django's TOKEN_METADATA_PREFIX (token_manager.py): a token is
+// valid only while its jti has a live allow-list entry, written by Django
+// at login (setex, TTL = token lifetime). Absence means revoked/expired.
+const jtiKey = (jti: string) => `jwt:metadata:${jti}`;
 
 /**
  * Verifies an access token's signature/expiry, then checks Redis to make
- * sure it hasn't been revoked. Redis-down behavior is governed by
- * REDIS_FAIL_CLOSED (see config/redis.ts). Tokens are minted by the
- * auth-issuing service sharing this JWT_SECRET and Redis instance — this
- * service only verifies them.
+ * sure it's still on the allow-list written by Django at login. Redis-down
+ * behavior is governed by REDIS_FAIL_CLOSED (see config/redis.ts). Tokens
+ * are minted exclusively by the Django backend sharing this JWT_SECRET and
+ * Redis instance — this service only verifies them.
  */
 export async function verifyAccessTokenAndCheckRevocation(
   token: string,

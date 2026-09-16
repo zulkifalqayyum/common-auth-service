@@ -2,19 +2,22 @@ import type { User } from "./models";
 
 export type TokenType = "access" | "refresh";
 
+/**
+ * Mirrors the stock djangorestframework-simplejwt payload — no custom
+ * claims are minted on the Django side (see auth.py's RefreshToken.for_user
+ * usage), so role/organizationId are not present here and must be loaded
+ * from the user row instead.
+ */
 export interface AccessTokenClaims {
-  sub: string;
+  user_id: number;
   jti: string;
-  type: "access";
-  role: string;
-  organizationId: string;
-  refJti: string;
+  token_type: "access";
 }
 
 export interface RefreshTokenClaims {
-  sub: string;
+  user_id: number;
   jti: string;
-  type: "refresh";
+  token_type: "refresh";
 }
 
 declare global {
