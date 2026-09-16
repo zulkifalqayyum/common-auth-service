@@ -47,7 +47,9 @@ export async function authenticate(
     return next();
   } catch (err) {
     if (err instanceof TokenExpiredError) {
-      res.status(401).json({ error: "Access token expired", code: "TOKEN_EXPIRED" });
+      res
+        .status(401)
+        .json({ error: "Access token expired", code: "TOKEN_EXPIRED" });
       return;
     }
     if (err instanceof TokenInvalidError) {

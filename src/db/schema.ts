@@ -187,12 +187,15 @@ export const spaceMembersRelations = relations(spaceMembers, ({ one }) => ({
   }),
 }));
 
-export const requiredActionsRelations = relations(requiredActions, ({ one }) => ({
-  user: one(users, {
-    fields: [requiredActions.userId],
-    references: [users.id],
+export const requiredActionsRelations = relations(
+  requiredActions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [requiredActions.userId],
+      references: [users.id],
+    }),
   }),
-}));
+);
 
 export type Organization = typeof organizations.$inferSelect;
 export type User = typeof users.$inferSelect;
