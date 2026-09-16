@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import organizationRoutes from "./routes/organizations";
 import apiKeyRoutes from "./routes/apiKeys";
+import accountRoutes from "./routes/accounts";
 
 export function createApp(): Application {
   const app = express();
@@ -50,6 +51,7 @@ export function createApp(): Application {
   app.use("/api/users", userRoutes);
   app.use("/api/organizations", organizationRoutes);
   app.use("/api/api-keys", apiKeyRoutes);
+  app.use("/api/accounts", accountRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

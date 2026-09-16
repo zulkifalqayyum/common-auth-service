@@ -55,6 +55,8 @@ const envSchema = z.object({
   API_KEY_PREFIX: z.string().default("ak_live_"),
 
   BCRYPT_SALT_ROUNDS: z.coerce.number().int().positive().default(12),
+
+  DJANGO_BACKEND_URL: z.string().url().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -46,7 +46,12 @@ router.post(
   asyncHandler(async (req, res) => {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten() });
+      res
+        .status(400)
+        .json({
+          error: "Invalid request body",
+          details: parsed.error.flatten(),
+        });
       return;
     }
 
@@ -66,7 +71,10 @@ router.post(
 
     if (user.is2FAEnabled) {
       const mfaJti = generateJti();
-      const mfaToken = await signMfaPreChallengeToken({ sub: user.id, jti: mfaJti });
+      const mfaToken = await signMfaPreChallengeToken({
+        sub: user.id,
+        jti: mfaJti,
+      });
       setMfaPreChallengeCookie(res, mfaToken);
 
       res.status(200).json({
@@ -95,7 +103,12 @@ router.post(
   asyncHandler(async (req, res) => {
     const parsed = twoFactorVerifySchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten() });
+      res
+        .status(400)
+        .json({
+          error: "Invalid request body",
+          details: parsed.error.flatten(),
+        });
       return;
     }
 
@@ -110,7 +123,9 @@ router.post(
       mfaClaims = await verifyMfaPreChallengeToken(mfaCookie);
     } catch (err) {
       if (err instanceof TokenExpiredError) {
-        res.status(401).json({ error: "Two-factor challenge expired, please log in again" });
+        res
+          .status(401)
+          .json({ error: "Two-factor challenge expired, please log in again" });
         return;
       }
       if (err instanceof TokenInvalidError) {
@@ -122,7 +137,11 @@ router.post(
 
     const user = await getUserById(mfaClaims.sub);
     if (!user || !user.is2FAEnabled || !user.totpSecret) {
-      res.status(401).json({ error: "Two-factor authentication is not configured for this user" });
+      res
+        .status(401)
+        .json({
+          error: "Two-factor authentication is not configured for this user",
+        });
       return;
     }
 
@@ -138,7 +157,10 @@ router.post(
     const tokens = await issueTokenPair(user);
     setSessionCookie(res, tokens.accessToken);
     setRefreshCookie(res, tokens.refreshToken);
-    res.clearCookie(env.MFA_COOKIE_NAME, { path: "/", domain: env.COOKIE_DOMAIN });
+    res.clearCookie(env.MFA_COOKIE_NAME, {
+      path: "/",
+      domain: env.COOKIE_DOMAIN,
+    });
 
     res.status(200).json({ user: toSafeUser(user) });
   }),
@@ -159,7 +181,9 @@ router.post(
     } catch (err) {
       clearAuthCookies(res);
       if (err instanceof TokenExpiredError) {
-        res.status(401).json({ error: "Refresh token expired", code: "REFRESH_EXPIRED" });
+        res
+          .status(401)
+          .json({ error: "Refresh token expired", code: "REFRESH_EXPIRED" });
         return;
       }
       res.status(401).json({ error: "Invalid or revoked refresh token" });
@@ -193,15 +217,6 @@ router.post(
   }),
 );
 
-router.get(
-  "/me",
-  isAuthenticated,
-  requireJwtUser,
-  asyncHandler(async (req, res) => {
-    res.status(200).json({ user: req.user });
-  }),
-);
-
 const verifyEmailSchema = z.object({
   email: z.string().email(),
   token: z.string().min(1),
@@ -212,15 +227,27 @@ router.post(
   asyncHandler(async (req, res) => {
     const parsed = verifyEmailSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten() });
+      res
+        .status(400)
+        .json({
+          error: "Invalid request body",
+          details: parsed.error.flatten(),
+        });
       return;
     }
 
     try {
-      const user = await verifyEmailService(parsed.data.email, parsed.data.token);
+      const user = await verifyEmailService(
+        parsed.data.email,
+        parsed.data.token,
+      );
       res.status(200).json({ user: toSafeUser(user) });
     } catch (err) {
-      res.status(400).json({ error: err instanceof Error ? err.message : "Verification failed" });
+      res
+        .status(400)
+        .json({
+          error: err instanceof Error ? err.message : "Verification failed",
+        });
     }
   }),
 );
