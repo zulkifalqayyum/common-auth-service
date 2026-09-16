@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
 
@@ -6,7 +8,6 @@ if (!process.env.DATABASE_URL) {
 }
 
 const databaseUrl = process.env["DATABASE_URL"];
-
 if (!databaseUrl) {
   throw new Error("DATABASE_URL must be set to run drizzle-kit");
 }
