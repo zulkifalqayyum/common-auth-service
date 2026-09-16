@@ -5,6 +5,7 @@ import {
   boolean,
   text,
   timestamp,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -71,6 +72,82 @@ export const requiredActions = pgTable("required_actions", {
   actionType: varchar("action_type", { length: 50 }).notNull(),
   isCompleted: boolean("is_completed").notNull(),
   userId: bigint("user_id", { mode: "number" }).notNull(),
+});
+
+export const rootStorage = pgTable("root_storage", {
+  id: bigint("id", { mode: "number" })
+    .primaryKey()
+    .generatedByDefaultAsIdentity(),
+  totalQuotaBytes: bigint("total_quota_bytes", { mode: "number" }).notNull(),
+  usedQuotaBytes: bigint("used_quota_bytes", { mode: "number" }).notNull(),
+  updatedAt: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).notNull(),
+});
+
+export const organizationStorage = pgTable("organization_storage", {
+  id: bigint("id", { mode: "number" })
+    .primaryKey()
+    .generatedByDefaultAsIdentity(),
+  organizationId: bigint("organization_id", { mode: "number" }).notNull(),
+  totalQuotaBytes: bigint("total_quota_bytes", { mode: "number" }).notNull(),
+  usedBytes: bigint("used_bytes", { mode: "number" }).notNull(),
+  updatedAt: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).notNull(),
+});
+
+export const userStorage = pgTable("user_storage", {
+  id: bigint("id", { mode: "number" })
+    .primaryKey()
+    .generatedByDefaultAsIdentity(),
+  userId: bigint("user_id", { mode: "number" }).notNull(),
+  assignedQuotaBytes: bigint("assigned_quota_bytes", {
+    mode: "number",
+  }).notNull(),
+  usedBytes: bigint("used_bytes", { mode: "number" }).notNull(),
+  updatedAt: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).notNull(),
+});
+
+export const storageLedger = pgTable("storage_ledger", {
+  id: bigint("id", { mode: "number" })
+    .primaryKey()
+    .generatedByDefaultAsIdentity(),
+  organizationId: bigint("organization_id", { mode: "number" }).notNull(),
+  userId: bigint("user_id", { mode: "number" }),
+  changeType: varchar("change_type", { length: 40 }).notNull(),
+  changedBytes: bigint("changed_bytes", { mode: "number" }).notNull(),
+  referenceId: varchar("reference_id", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).notNull(),
+});
+
+export const notifications = pgTable("notifications", {
+  id: bigint("id", { mode: "number" })
+    .primaryKey()
+    .generatedByDefaultAsIdentity(),
+  notificationType: varchar("notification_type", { length: 64 }).notNull(),
+  channel: varchar("channel", { length: 10 }).notNull(),
+  severity: varchar("severity", { length: 10 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  data: jsonb("data").notNull(),
+  isRead: boolean("is_read").notNull(),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).notNull(),
+  actorId: bigint("actor_id", { mode: "number" }),
+  organizationId: bigint("organization_id", { mode: "number" }),
+  recipientId: bigint("recipient_id", { mode: "number" }).notNull(),
+  isEmailSent: boolean("is_email_sent").notNull(),
 });
 
 export const usersRelations = relations(users, ({ one, many }) => ({

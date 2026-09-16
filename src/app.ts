@@ -6,6 +6,7 @@ import { env } from "./config/env";
 import { authenticate } from "./middleware/authMiddleware";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 import accountRoutes from "./routes/accounts";
+import storageRoutes from "./routes/storage";
 
 export function createApp(): Application {
   const app = express();
@@ -36,6 +37,7 @@ export function createApp(): Application {
   app.use(authenticate);
 
   app.use("/api/accounts", accountRoutes);
+  app.use("/api/storage", storageRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

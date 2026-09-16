@@ -1,26 +1,29 @@
 import "dotenv/config";
-import type { Config } from "drizzle-kit";
+import { defineConfig } from "drizzle-kit";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is required to run drizzle-kit");
 }
 
-/**
- * DATABASE_URL points at a pre-existing database owned by the Django
- * backend. src/db/schema.ts is a read-only mirror of a handful of its
- * tables (see the comment there) — this app creates/owns none of them.
- * Do NOT run `pnpm migrate:generate` / `pnpm migrate`: drizzle-kit would
- * diff against the last local snapshot and could emit destructive
- * ALTER/DROP statements against the real Django tables.
- */
+const databaseUrl = process.env["DATABASE_URL"];
 
-export default {
-  schema: "./src/db/schema.ts",
-  out: "./drizzle",
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL must be set to run drizzle-kit");
+}
+
+export default defineConfig({
   dialect: "postgresql",
-  dbCredentials: {
-    url: process.env.DATABASE_URL,
-  },
+  schema: ["./src/db/schema.ts", "./src/db/relations.ts"],
+  out: "./src/db/schema",
+  dbCredentials: { url: databaseUrl },
   strict: true,
   verbose: true,
-} satisfies Config;
+  extensionsFilters: ["postgis"],
+  tablesFilter: [
+    "!spatial_ref_sys",
+    "!geography_columns",
+    "!geometry_columns",
+    "!pg_stat_statements*",
+    "!djangoApschedulerDjangojob",
+  ],
+});
