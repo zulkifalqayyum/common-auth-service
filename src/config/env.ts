@@ -34,27 +34,10 @@ const envSchema = z.object({
   JWT_AUDIENCE: z.string().default("nodeexpress-auth-clients"),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(28800),
   REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(43200),
-  MFA_PRE_CHALLENGE_TTL_SECONDS: z.coerce
-    .number()
-    .int()
-    .positive()
-    .default(600),
 
-  COOKIE_DOMAIN: z.string().default("localhost"),
-  COOKIE_SECURE: z
-    .string()
-    .default("true")
-    .transform((v) => v === "true"),
-  COOKIE_SAMESITE: z.enum(["strict", "lax", "none"]).default("none"),
   SESSION_COOKIE_NAME: z.string().default("session"),
-  REFRESH_COOKIE_NAME: z.string().default("refresh_token"),
-  MFA_COOKIE_NAME: z.string().default("mfa_pre_challenge"),
 
   CORS_ALLOWED_ORIGINS: z.string().default(""),
-
-  API_KEY_PREFIX: z.string().default("ak_live_"),
-
-  BCRYPT_SALT_ROUNDS: z.coerce.number().int().positive().default(12),
 
   DJANGO_BACKEND_URL: z.string().url().optional(),
 });

@@ -1,10 +1,6 @@
 import { SignJWT, jwtVerify, errors as joseErrors } from "jose";
 import { env } from "../config/env";
-import type {
-  AccessTokenClaims,
-  RefreshTokenClaims,
-  MfaPreChallengeClaims,
-} from "../types/auth";
+import type { AccessTokenClaims, RefreshTokenClaims } from "../types/auth";
 
 const secretKey = new TextEncoder().encode(env.JWT_SECRET);
 
@@ -50,13 +46,6 @@ export async function signRefreshToken(
   return signClaims({ ...claims, type: "refresh" }, ttlSeconds);
 }
 
-export async function signMfaPreChallengeToken(
-  claims: Omit<MfaPreChallengeClaims, "type">,
-  ttlSeconds: number = env.MFA_PRE_CHALLENGE_TTL_SECONDS,
-): Promise<string> {
-  return signClaims({ ...claims, type: "mfa_pre_challenge" }, ttlSeconds);
-}
-
 async function verifyClaims<T>(token: string): Promise<T> {
   try {
     const { payload } = await jwtVerify(token, secretKey, {
@@ -88,16 +77,6 @@ export async function verifyRefreshToken(
   const payload = await verifyClaims<RefreshTokenClaims>(token);
   if (payload.type !== "refresh") {
     throw new TokenInvalidError("Not a refresh token");
-  }
-  return payload;
-}
-
-export async function verifyMfaPreChallengeToken(
-  token: string,
-): Promise<MfaPreChallengeClaims> {
-  const payload = await verifyClaims<MfaPreChallengeClaims>(token);
-  if (payload.type !== "mfa_pre_challenge") {
-    throw new TokenInvalidError("Not an MFA pre-challenge token");
   }
   return payload;
 }

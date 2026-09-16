@@ -2,12 +2,12 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../config/database";
 import { env } from "../config/env";
 import {
-  djangoOrganizations,
-  djangoRequiredActions,
-  djangoSpaceMembers,
-  djangoSpaces,
-  djangoUsers,
-} from "../db/djangoSchema";
+  organizations,
+  requiredActions,
+  spaceMembers,
+  spaces,
+  users,
+} from "../db/schema";
 
 export class ProfileNotFoundError extends Error {
   constructor() {
@@ -51,22 +51,15 @@ function resolveProfilePictureUrl(key: string | null): string | null {
   return `${env.DJANGO_BACKEND_URL}/media/${key}`;
 }
 
-export async function getUserProfileByEmail(
-  email: string,
-): Promise<UserProfile> {
-  const normalizedEmail = email.toLowerCase().trim();
-
+export async function getUserProfileById(userId: number): Promise<UserProfile> {
   const [row] = await db
     .select({
-      user: djangoUsers,
-      organization: djangoOrganizations,
+      user: users,
+      organization: organizations,
     })
-    .from(djangoUsers)
-    .leftJoin(
-      djangoOrganizations,
-      eq(djangoUsers.organizationId, djangoOrganizations.id),
-    )
-    .where(eq(djangoUsers.email, normalizedEmail))
+    .from(users)
+    .leftJoin(organizations, eq(users.organizationId, organizations.id))
+    .where(eq(users.id, userId))
     .limit(1);
 
   if (!row) {
@@ -77,20 +70,20 @@ export async function getUserProfileByEmail(
 
   const [spaceRow] = await db
     .select({
-      space: djangoSpaces,
+      space: spaces,
     })
-    .from(djangoSpaceMembers)
-    .innerJoin(djangoSpaces, eq(djangoSpaceMembers.spaceId, djangoSpaces.id))
-    .where(eq(djangoSpaceMembers.userId, user.id))
+    .from(spaceMembers)
+    .innerJoin(spaces, eq(spaceMembers.spaceId, spaces.id))
+    .where(eq(spaceMembers.userId, user.id))
     .limit(1);
 
   const requiredActionRows = await db
-    .select({ actionType: djangoRequiredActions.actionType })
-    .from(djangoRequiredActions)
+    .select({ actionType: requiredActions.actionType })
+    .from(requiredActions)
     .where(
       and(
-        eq(djangoRequiredActions.userId, user.id),
-        eq(djangoRequiredActions.isCompleted, false),
+        eq(requiredActions.userId, user.id),
+        eq(requiredActions.isCompleted, false),
       ),
     );
 

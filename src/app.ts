@@ -4,13 +4,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { env } from "./config/env";
 import { authenticate } from "./middleware/authMiddleware";
-import { emailVerificationRequired } from "./middleware/emailVerification";
-import { organizationStatusMiddleware } from "./middleware/organizationStatus";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
-import authRoutes from "./routes/auth";
-import userRoutes from "./routes/users";
-import organizationRoutes from "./routes/organizations";
-import apiKeyRoutes from "./routes/apiKeys";
 import accountRoutes from "./routes/accounts";
 
 export function createApp(): Application {
@@ -38,19 +32,9 @@ export function createApp(): Application {
     res.status(200).json({ status: "ok" });
   });
 
-  // 5. Custom JWT/API key authentication
+  // 5. JWT (cookie/bearer) authentication
   app.use(authenticate);
 
-  // 6. Email verification requirement
-  app.use(emailVerificationRequired);
-
-  // 7. Organization status enforcement (last)
-  app.use(organizationStatusMiddleware);
-
-  app.use("/api/auth", authRoutes);
-  app.use("/api/users", userRoutes);
-  app.use("/api/organizations", organizationRoutes);
-  app.use("/api/api-keys", apiKeyRoutes);
   app.use("/api/accounts", accountRoutes);
 
   app.use(notFoundHandler);

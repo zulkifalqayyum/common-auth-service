@@ -2,7 +2,7 @@ import { Router } from "express";
 import { asyncHandler } from "../middleware/errorHandler";
 import { isAuthenticated, requireJwtUser } from "../middleware/authMiddleware";
 import {
-  getUserProfileByEmail,
+  getUserProfileById,
   ProfileNotFoundError,
 } from "../services/accountService";
 
@@ -14,7 +14,7 @@ router.get(
   requireJwtUser,
   asyncHandler(async (req, res) => {
     try {
-      const user = await getUserProfileByEmail(req.user!.email);
+      const user = await getUserProfileById(req.user!.id);
       res.status(200).json({ message: "User profile retrieved successfully", user });
     } catch (err) {
       if (err instanceof ProfileNotFoundError) {

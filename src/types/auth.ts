@@ -1,7 +1,6 @@
-import type { SafeUser, ApiKeyScope } from "./models";
-import type { ApiKey } from "../db/schema";
+import type { User } from "./models";
 
-export type TokenType = "access" | "refresh" | "mfa_pre_challenge";
+export type TokenType = "access" | "refresh";
 
 export interface AccessTokenClaims {
   sub: string;
@@ -18,31 +17,12 @@ export interface RefreshTokenClaims {
   type: "refresh";
 }
 
-export interface MfaPreChallengeClaims {
-  sub: string;
-  jti: string;
-  type: "mfa_pre_challenge";
-}
-
-export interface TokenPair {
-  accessToken: string;
-  refreshToken: string;
-  accessJti: string;
-  refreshJti: string;
-}
-
-export interface AuthenticatedApiKeyContext {
-  apiKey: ApiKey;
-  scope: ApiKeyScope;
-}
-
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user?: SafeUser;
-      authType?: "jwt" | "api_key";
-      apiKeyContext?: AuthenticatedApiKeyContext;
+      user?: User;
+      authType?: "jwt";
       accessJti?: string;
     }
   }
