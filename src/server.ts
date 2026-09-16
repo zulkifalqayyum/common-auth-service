@@ -1,11 +1,17 @@
 import { createApp } from "./app";
 import { env } from "./config/env";
-import { checkDatabaseConnection, closeDatabaseConnection } from "./config/database";
+import {
+  checkDatabaseConnection,
+  closeDatabaseConnection,
+} from "./config/database";
 import { connectRedis, disconnectRedis } from "./config/redis";
 
 async function main(): Promise<void> {
   await connectRedis().catch((err) => {
-    console.error("[startup] failed to connect to Redis, continuing per fallback policy", err);
+    console.error(
+      "[startup] failed to connect to Redis, continuing per fallback policy",
+      err,
+    );
   });
 
   const dbOk = await checkDatabaseConnection();
@@ -16,7 +22,9 @@ async function main(): Promise<void> {
   const app = createApp();
 
   const server = app.listen(env.PORT, () => {
-    console.log(`[server] Nordjay backend listening on port ${env.PORT} (${env.NODE_ENV})`);
+    console.log(
+      `[server] Node Express Auth Backend listening on port ${env.PORT} (${env.NODE_ENV})`,
+    );
   });
 
   const shutdown = async (signal: string): Promise<void> => {

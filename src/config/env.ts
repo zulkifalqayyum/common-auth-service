@@ -15,22 +15,23 @@ const envSchema = z.object({
     .positive()
     .default(30000),
 
-  REDIS_URL: z.string().default("redis://localhost:6379/0"),
-  REDIS_HOST: z.string().default("localhost"),
-  REDIS_PORT: z.coerce.number().int().positive().default(6379),
   REDIS_DB: z.coerce.number().int().min(0).max(15).default(0),
-  REDIS_SENTINELS: z.string().default("localhost:26379,localhost:26380"),
-  REDIS_MASTER_NAME: z.string().default("mymaster"),
-  REDIS_TOKEN_DB: z.coerce.number().int().min(0).max(15).default(0),
-  REDIS_API_KEY_DB: z.coerce.number().int().min(0).max(15).default(4),
+  REDIS_SENTINELS: z
+    .string()
+    .min(1, "REDIS_SENTINELS is required")
+    .default("localhost:26379,localhost:26380"),
+  REDIS_MASTER_NAME: z
+    .string()
+    .min(1, "REDIS_MASTER_NAME is required")
+    .default("mymaster"),
   REDIS_FAIL_CLOSED: z
     .string()
     .default("true")
     .transform((v) => v === "true"),
 
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
-  JWT_ISSUER: z.string().default("nordjay"),
-  JWT_AUDIENCE: z.string().default("nordjay-clients"),
+  JWT_ISSUER: z.string().default("nodeexpress-auth"),
+  JWT_AUDIENCE: z.string().default("nodeexpress-auth-clients"),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(28800),
   REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(43200),
   MFA_PRE_CHALLENGE_TTL_SECONDS: z.coerce

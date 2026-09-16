@@ -40,20 +40,20 @@ export async function issueTokenPair(user: User): Promise<TokenPair> {
   await Promise.all([
     withRedisFallback(
       () =>
-        redisClient.setEx(
+        redisClient.setex(
           jtiKey(accessJti),
           env.ACCESS_TOKEN_TTL_SECONDS,
-          user.id,
+          String(user.id),
         ),
       null,
       null,
     ),
     withRedisFallback(
       () =>
-        redisClient.setEx(
+        redisClient.setex(
           jtiKey(refreshJti),
           env.REFRESH_TOKEN_TTL_SECONDS,
-          user.id,
+          String(user.id),
         ),
       null,
       null,
